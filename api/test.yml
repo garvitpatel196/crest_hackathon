@@ -1,0 +1,32 @@
+---
+- name: This is a hello-world example
+  hosts: clusterhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - command: echo "hello Crest"
+    - command: echo "hello Crest1"
+    - command: echo "hello Crest2"
+    - command: echo "hello Crest3"
+
+- name: Creating Ubuntu container
+  hosts: clusterhost
+  connection: local
+  gather_facts: no
+  tasks:
+    - name: Node container
+      become: yes
+      docker_container:
+        name: splunk
+        state: started
+        image: splunk/installed
+        tty: yes
+        privileged: yes
+        ports:
+          - "9000:8000"
+          - "9089:8089"
+    - pause:
+        minutes: 2
+    - name: Start Splunk
+      become: yes
+      command: docker exec -it splunk bash -c '/opt/splunk/bin/splunk start --accept-license'
